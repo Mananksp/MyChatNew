@@ -96,8 +96,15 @@ import SidebarSkeleton from "./Skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } =
-    useChatStore();
+  const {
+    getUsers,
+    users,
+    selectedUser,
+    setSelectedUser,
+    isUsersLoading,
+    setChatbotActive,
+    isChatbotActive,
+  } = useChatStore();
 
   const { onlineUsers } = useAuthStore();
   const { authUser } = useAuthStore();
@@ -112,6 +119,11 @@ const Sidebar = () => {
     : users;
 
   if (isUsersLoading) return <SidebarSkeleton />;
+
+  const handleSelectChatbot = () => {
+    setSelectedUser(null);
+    setChatbotActive(true);
+  };
 
   return (
     <aside className="h-full w-16 sm:w-20 md:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -143,6 +155,29 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
+        {/* AI Assistant */}
+        <button
+          onClick={handleSelectChatbot}
+          className={`
+            w-full p-2 sm:p-3 flex items-center gap-2 sm:gap-3
+            hover:bg-base-300 transition-colors
+            ${isChatbotActive ? "bg-base-300 ring-1 ring-base-300" : ""}
+          `}
+          title="Grok AI Assistant"
+        >
+          <div className="relative flex-shrink-0 mx-auto sm:mx-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-lg sm:text-xl">
+              ✨
+            </div>
+          </div>
+
+          {/* Chatbot info - only visible on larger screens */}
+          <div className="hidden sm:block text-left min-w-0 flex-1">
+            <div className="font-medium truncate text-sm">Grok Assistant</div>
+            <div className="text-xs text-base-content/60">AI Chat</div>
+          </div>
+        </button>
+
         {filteredUsers.map((user) => (
           <button
             key={user._id}
@@ -170,7 +205,9 @@ const Sidebar = () => {
 
             {/* User info - only visible on larger screens */}
             <div className="hidden sm:block text-left min-w-0 flex-1">
-              <div className="font-medium truncate text-sm">{user.fullName}</div>
+              <div className="font-medium truncate text-sm">
+                {user.fullName}
+              </div>
               <div className="text-xs text-base-content/60">
                 {onlineUsers.includes(String(user._id)) ? "Online" : "Offline"}
               </div>
@@ -179,11 +216,12 @@ const Sidebar = () => {
         ))}
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-base-content/50 py-4 text-sm">No users</div>
+          <div className="text-center text-base-content/50 py-4 text-sm">
+            No users
+          </div>
         )}
       </div>
     </aside>
   );
 };
 export default Sidebar;
-

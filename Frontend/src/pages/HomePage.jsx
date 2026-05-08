@@ -2,9 +2,10 @@ import { useChatStore } from "../store/useChatStore.js";
 import Sidebar from "../components/Sidebar.jsx";
 import NoChatSelected from "../components/NoChatSelected.jsx";
 import ChatContainer from "../components/ChatContainer.jsx";
+import ChatbotContainer from "../components/ChatbotContainer.jsx";
 
 const HomePage = () => {
-  const { selectedUser, setSelectedUser } = useChatStore();
+  const { selectedUser, setSelectedUser, isChatbotActive } = useChatStore();
 
   return (
     <div className="pt-19 sm:pt-16 w-full">
@@ -15,14 +16,22 @@ const HomePage = () => {
             <Sidebar />
           </div>
           <div className="bg-base-100 rounded-lg shadow-lg flex-1 h-full overflow-hidden">
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            {isChatbotActive ? (
+              <ChatbotContainer />
+            ) : !selectedUser ? (
+              <NoChatSelected />
+            ) : (
+              <ChatContainer />
+            )}
           </div>
         </div>
       </div>
 
       {/* Mobile/Tablet Layout - Full screen chat or sidebar */}
       <div className="flex md:hidden h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)]">
-        {!selectedUser ? (
+        {isChatbotActive ? (
+          <ChatbotContainer onBack={() => setSelectedUser(null)} />
+        ) : !selectedUser ? (
           <div className="w-full h-full overflow-hidden">
             <Sidebar />
           </div>

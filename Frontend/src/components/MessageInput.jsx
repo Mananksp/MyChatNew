@@ -75,7 +75,10 @@ const MessageInput = () => {
 
   return (
     <div className="p-2 sm:p-3 md:p-4 w-full">
-      <form onSubmit={handleSendMessage} className="flex items-center gap-1.5 sm:gap-2">
+      <form
+        onSubmit={handleSendMessage}
+        className="flex items-center gap-1.5 sm:gap-2"
+      >
         {/* File Input */}
         <input
           ref={fileInputRef}
@@ -91,7 +94,9 @@ const MessageInput = () => {
           type="button"
           className="btn btn-xs sm:btn-sm btn-circle text-blue-400 hover:bg-blue-900 disabled:opacity-50 flex-shrink-0"
           title="Send file"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            fileInputRef.current?.click();
+          }}
           disabled={isUploading}
         >
           <Paperclip size={16} className="sm:w-5 sm:h-5" />
@@ -109,9 +114,11 @@ const MessageInput = () => {
 
         <button
           type="button"
-          className="btn btn-xs sm:btn-sm btn-circle text-orange-400 hover:bg-orange-900 flex-shrink-0"
+          className="btn btn-xs sm:btn-sm btn-circle text-orange-400 hover:bg-orange-900 flex-shrink-0 disabled:opacity-50"
           title="Schedule Message"
-          onClick={() => setShowScheduleModal(true)}
+          onClick={() => {
+            setShowScheduleModal(true);
+          }}
           disabled={isScheduling}
         >
           <Clock size={16} className="sm:w-5 sm:h-5" />
@@ -125,13 +132,6 @@ const MessageInput = () => {
           <Send size={16} className="sm:w-5 sm:h-5" />
         </button>
       </form>
-
-      <ScheduleModal
-        isOpen={showScheduleModal}
-        onClose={() => setShowScheduleModal(false)}
-        onSchedule={handleScheduleMessage}
-        isLoading={isScheduling}
-      />
 
       <ScheduleModal
         isOpen={showScheduleModal}

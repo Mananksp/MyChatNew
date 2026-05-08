@@ -211,4 +211,3 @@ const ChatHeader = ({ onBack }) => {
   );
 };
 export default ChatHeader;
-

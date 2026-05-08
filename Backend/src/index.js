@@ -8,6 +8,7 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+import chatbotRoutes from "./routes/chatbot.routes.js";
 import { app, server } from "./lib/socket.js";
 import { scheduleCleanup } from "./lib/cleanup.js";
 
@@ -42,13 +43,14 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 
 // ✅ Serve uploaded files statically
-app.use("/uploads", express.static(path.join(__dirname, "Backend", "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Note: using only the `cors` middleware above ensures preflight and
 // standard CORS headers are set. Avoid duplicating headers manually.
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Redirect root server URL to frontend login page (useful when opening localhost:5000 in browser)
 app.get("/", (req, res) => {

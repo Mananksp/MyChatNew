@@ -19,6 +19,9 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   isScheduling: false,
+  isChatbotActive: false,
+  chatbotMessages: [],
+  isChatbotLoading: false,
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -41,6 +44,87 @@ export const useChatStore = create((set, get) => ({
       toast.error(error?.response?.data?.message || "Failed to load messages");
     } finally {
       set({ isMessagesLoading: false });
+    }
+  },
+
+  askChatbot: async (text) => {
+    try {
+      const res = await axiosInstance.post("/chatbot/query", { text });
+      return res.data;
+    } catch (error) {
+      console.error("[chatbot] askChatbot error:", error);
+      const message =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Assistant is unavailable right now";
+      toast.error(message);
+      return null;
+    }
+  },
+
+  sendChatbotMessage: async (text) => {
+    const { chatbotMessages } = get();
+    const { authUser } = useAuthStore.getState();
+
+    // Add user message immediately
+    const userMessage = {
+      _id: `user-${Date.now()}`,
+      senderId: authUser._id,
+      text: text,
+      createdAt: new Date().toISOString(),
+    };
+
+    set({
+      chatbotMessages: [...chatbotMessages, userMessage],
+      isChatbotLoading: true,
+    });
+
+    try {
+      const res = await axiosInstance.post("/chatbot/query", { text });
+      if (res.data?.text) {
+        const botMessage = {
+          _id: `bot-${Date.now()}`,
+          senderId: "chatbot",
+          text: res.data.text,
+          createdAt: new Date().toISOString(),
+        };
+        set((state) => ({
+          chatbotMessages: [...state.chatbotMessages, botMessage],
+          isChatbotLoading: false,
+        }));
+      } else {
+        toast.error("Failed to get response from assistant");
+        set({ isChatbotLoading: false });
+      }
+    } catch (error) {
+      console.error("[chatbot] sendChatbotMessage error:", error);
+      const message =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Assistant is unavailable";
+      toast.error(message);
+      set({ isChatbotLoading: false });
+    }
+  },
+
+  setChatbotActive: (active) => {
+    if (active && get().chatbotMessages.length === 0) {
+      // Initialize with greeting message
+      set({
+        isChatbotActive: active,
+        chatbotMessages: [
+          {
+            _id: "intro",
+            senderId: "chatbot",
+            text: "Hi! I am Grok. Ask me anything — I run through your server so your API key stays private.",
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      });
+    } else {
+      set({ isChatbotActive: active });
     }
   },
 
